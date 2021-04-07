@@ -1,0 +1,8 @@
+---
+python_ver: 2
+network_name: test_net
+server_name: my_server
+client_name: my_client
+subnet: 192.168.0.0/16
+server_ip: 192.168.0.2
+client_ip: 192.168.0.3

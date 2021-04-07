@@ -1,0 +1,31 @@
+---
+#get ready
+#cleaning after past run(s)
+
+- name: Erace server
+  shell: docker stop {{ server_name }} || echo '1'; docker rm {{ server_name }} || echo '1'
+  become: true
+
+- name: Erace client
+  shell: docker stop {{ client_name }} || echo '1'; docker rm {{ client_name }} || echo '1'
+  become: true
+
+- name: Erase network
+  shell: docker network rm {{ network_name }}
+  ignore_errors: true
+  become: true
+
+#creating network client server
+
+- name: Creating network for application
+  shell: docker network create --driver=bridge --subnet={{ subnet }} {{ network_name }}
+  ignore_errors: true
+  become: true
+
+- name: Creating container with server
+  shell: docker run -d --network={{ network_name }} --ip={{ server_ip }} --name {{ server_name }} -v "$PWD":/usr/src/myapp -w /usr/src/myapp python:{{ python_ver }}-alpine python server.py 
+  become: true
+
+- name: Creating container with client
+  shell: docker run -d --network={{ network_name }} --ip={{ client_ip }} --name {{ client_name }} -v "$PWD":/usr/src/myapp -w /usr/src/myapp python:{{ python_ver }}-alpine python client.py
+  become: true
