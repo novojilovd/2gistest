@@ -4,6 +4,9 @@
        name: "{{ item }}"
        state: removed
 
+  when:
+     ansible_os_family == "RedHat"
+
   with_items:
    - docker
    - docker-client
@@ -15,6 +18,8 @@
    - docker-engine
 
 - name: Install yum utils
+  when:
+      ansible_os_family == "RedHat"
   yum:
       name: "{{ item }}"
       state: latest
@@ -24,23 +29,57 @@
         - lvm2
 
 - name: Add Docker repo
+  when:
+      ansible_os_family == "RedHat"
   get_url:
       url: https://download.docker.com/linux/centos/docker-ce.repo
       dest: /etc/yum.repos.d/docker-ce.repo
 
 - name: Install Docker
+  when:
+      ansible_os_family == "RedHat"
   yum:
     name: docker-ce
     state: latest
+
+- name: Install aptitude using apt
+  when:
+      ansible_os_family == "Debian"
+  apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+- name: Install required system packages
+  when:
+      ansible_os_family == "Debian"
+  apt: name={{ item }} state=latest update_cache=yes
+  loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools']
+
+- name: Add Docker GPG apt Key
+  when:
+      ansible_os_family == "Debian"
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  when:
+      ansible_os_family == "Debian"
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu bionic stable
+    state: present
+
+- name: Update apt and install docker-ce
+  when:
+      ansible_os_family == "Debian"
+  apt: update_cache=yes name=docker-ce state=latest
+
+- name: Install Docker Module for Python
+  when:
+      ansible_os_family == "Debian"
+  pip:
+    name: docker
 
 - name: Start Docker service
   service:
     name: docker
     state: started
     enabled: yes
-  
-- name: Add user yogesh to docker group
-  user:
-      name: yogesh
-      groups: docker
-      append: yes
