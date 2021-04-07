@@ -79,6 +79,8 @@
     name: docker
 
 - name: Start Docker service
+  when:
+      ansible_os_family == "RedHat"
   service:
     name: docker
     state: started
