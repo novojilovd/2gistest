@@ -1,5 +1,10 @@
 ---
 #get ready
+- name: Install pip
+  yum:
+    name: ['python-pip', 'python-virtualenv', 'python-setuptools']
+    state: latest
+    
 #creating network client server
 - name: Delete network
   docker_network:
