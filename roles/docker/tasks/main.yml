@@ -1,31 +1,52 @@
 ---
 #get ready
-#cleaning after past run(s)
-
-- name: Erace server
-  shell: docker stop {{ server_name }} || echo '1'; docker rm {{ server_name }} || echo '1'
-  become: true
-
-- name: Erace client
-  shell: docker stop {{ client_name }} || echo '1'; docker rm {{ client_name }} || echo '1'
-  become: true
-
-- name: Erase network
-  shell: docker network rm {{ network_name }}
-  ignore_errors: true
-  become: true
-
 #creating network client server
+- name: Delete network
+  docker_network:
+    name: "{{ network_name }}"
+    state: absent
+    force: yes
+    
+- name: Delete server
+  docker_container:
+    name: "{{ server_name }}"
+    state: absent
 
-- name: Creating network for application
-  shell: docker network create --driver=bridge --subnet={{ subnet }} {{ network_name }}
-  ignore_errors: true
-  become: true
-
+- name: Delete client
+  docker_container:
+    name: "{{ client_name }}"
+    state: absent    
+    
+- name: Create network for application
+  docker_network:
+    name: "{{ network_name }}"
+    ipam_config:
+      - subnet: "{{ subnet }}"
+          
 - name: Creating container with server
-  shell: docker run -d --network={{ network_name }} --ip={{ server_ip }} --name {{ server_name }} -v "$PWD":/usr/src/myapp -w /usr/src/myapp python:{{ python_ver }}-alpine python server.py 
-  become: true
+  docker_container:
+    name: "{{ server_name }}"
+    image: python:{{ python_ver }}-alpine
+    command: python server.py
+    volumes: 
+      - /root/2gistest:/usr/src/myapp
+    working_dir: /usr/src/myapp
+    networks_cli_compatible: yes
+    networks:
+      - name: "{{ network_name }}"
+        ipv4_address: "{{ server_ip }}"
+    state: started
 
 - name: Creating container with client
-  shell: docker run -d --network={{ network_name }} --ip={{ client_ip }} --name {{ client_name }} -v "$PWD":/usr/src/myapp -w /usr/src/myapp python:{{ python_ver }}-alpine python client.py
-  become: true
+  docker_container:
+    name: "{{ client_name }}"
+    image: python:{{ python_ver }}-alpine
+    command: python client.py
+    volumes: 
+      - /root/2gistest:/usr/src/myapp
+    working_dir: /usr/src/myapp
+    networks_cli_compatible: yes
+    networks:
+      - name: "{{ network_name }}"
+        ipv4_address: "{{ client_ip }}"
+    state: started
