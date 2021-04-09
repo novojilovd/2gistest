@@ -1,15 +1,3 @@
 ---
-- name: "Preparing"
-  hosts: 127.0.0.1
-  connection: local
-  vars_files:
-   - vars.yml
-  become:
-    true
-  become_method:
-    sudo
-  become_user:
-    root
-  roles:
-   - docker_install
-   - docker
+- import_playbook: centos.yml
+- import_playbook: ubuntu.yml
