@@ -11,5 +11,6 @@
   become_user:
     root
   roles:
+   - python_ubuntu
    - docker_ubuntu
    - docker

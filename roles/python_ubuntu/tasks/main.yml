@@ -1,0 +1,10 @@
+---
+#get ready
+- name: Install pip
+  apt:
+    name: ['python3-pip', 'virtualenv', 'python3-setuptools']
+    state: latest
+
+- name: Instal docker-py with pip
+  pip:
+    name: docker

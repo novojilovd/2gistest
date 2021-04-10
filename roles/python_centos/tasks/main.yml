@@ -1,0 +1,10 @@
+---
+#get ready
+- name: Install pip
+  yum:
+    name: ['python-pip', 'python-virtualenv', 'python-setuptools']
+    state: latest
+
+- name: Instal docker-py with pip
+  pip:
+    name: docker-py
