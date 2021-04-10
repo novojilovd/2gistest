@@ -37,8 +37,8 @@
     name: "{{ server_name }}"
     image: python:{{ python_ver }}-alpine
     command: python server.py
-    volumes: 
-      - /root/2gistest:/usr/src/myapp
+    volumes:
+      - "{{ script_path }}:/usr/src/myapp"
     working_dir: /usr/src/myapp
     networks_cli_compatible: yes
     networks:
@@ -51,8 +51,8 @@
     name: "{{ client_name }}"
     image: python:{{ python_ver }}-alpine
     command: python client.py
-    volumes: 
-      - /root/2gistest:/usr/src/myapp
+    volumes:
+      - "{{ script_path }}:/usr/src/myapp"
     working_dir: /usr/src/myapp
     networks_cli_compatible: yes
     networks:
